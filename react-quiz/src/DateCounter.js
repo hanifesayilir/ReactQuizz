@@ -1,8 +1,40 @@
-import { useState } from "react";
+import {useReducer, useState} from "react";
+
+function reducer (state,action) {
+  // console.log(state,action);
+  // if(action.type === "inc") return state + action.payload;
+  // if(action.type === "dec") return state - action.payload;
+  // if( action.type === "setCount") return action.payload;
+  console.log(state,action);
+
+ // return {count: 0, step: 1};
+
+  switch (action.type) {
+
+    case "dec":
+      return  { ...state,count: state.count - state.step};
+    case "inc":
+      return  { ...state,count: state.count + state.step};
+    case "setCount":
+      return  { ...state,count: action.payload};
+    case "setStep":
+      return  { ...state,step: action.payload};
+    case "reset":
+      return  { count: 0, step: 1};
+    default:
+      throw new Error("unknown action")
+
+  }
+
+}
 
 function DateCounter() {
-  const [count, setCount] = useState(0);
-  const [step, setStep] = useState(1);
+//  const [count, setCount] = useState(0);
+  const initialState = { count: 0, step: 1};
+  const [state, dispatch] = useReducer(reducer,initialState)
+
+  const { count, step} = state;
+//  const [step, setStep] = useState(1);
 
   // This mutates the date object.
   const date = new Date("june 21 2027");
@@ -10,25 +42,32 @@ function DateCounter() {
 
   const dec = function () {
     // setCount((count) => count - 1);
-    setCount((count) => count - step);
+  //  setCount((count) => count - step);
+    dispatch({ type: "dec", payload: -1});
   };
 
   const inc = function () {
     // setCount((count) => count + 1);
-    setCount((count) => count + step);
+   // setCount((count) => count + step);
+
+    dispatch({ type: "inc", payload: +1});
   };
 
   const defineCount = function (e) {
-    setCount(Number(e.target.value));
+
+    dispatch({ type: "setCount", payload: Number(e.target.value)})
+  //  setCount(Number(e.target.value));
   };
 
   const defineStep = function (e) {
-    setStep(Number(e.target.value));
+    dispatch({ type: "setStep", payload: Number(e.target.value)})
+   // setStep(Number(e.target.value));
   };
 
   const reset = function () {
-    setCount(0);
-    setStep(1);
+  //  setCount(0);
+ //   setStep(1);
+    dispatch({ type: "reset"})
   };
 
   return (
