@@ -6,6 +6,8 @@ import Error from "./Error";
 import StartsScreen from "./StartsScreen";
 import Question from "./Question";
 import NextButton from "./components/NextButton";
+import Progress from "./components/Progress";
+import FinishScreen from "./FinishScreen";
 
 
 const initialState = {
@@ -38,6 +40,9 @@ function reducer(state,action){
         };
         case "nextQuestion": return {...state,
         index: state.index+1, answer: null
+        };
+        case "finish": return {...state,
+             status: "finished"
         }
 
         default:
@@ -48,9 +53,10 @@ function reducer(state,action){
 
 export default function App () {
 
-    const [{questions, status, index,answer},dispatch] = useReducer(reducer,initialState);
+    const [{questions, status, index,answer, points},dispatch] = useReducer(reducer,initialState);
 
     const numberOfQuestions = questions.length;
+    const maxPossiblePoints = questions.reduce((prev,cur) => prev + cur.points,0);
 
     useEffect(()=>{
         fetch("http://localhost:8000/questions")
@@ -70,18 +76,27 @@ export default function App () {
           {status === 'active' && (
               <>
 
+                  <Progress
+                      numQuestions={numberOfQuestions}
+                      index={index}
+                      points={points}
+                      maxPossiblePoints={maxPossiblePoints}
+                      answer={answer}
+                  />
                   <Question
                       question={questions[index]}
                       dispatch={dispatch}
                       answer={answer}
                   />
-                  <NextButton dispatch={dispatch} answer={answer}/>
+                  <NextButton dispatch={dispatch} answer={answer} index={index} numQuestions={numberOfQuestions}/>
               </>
-              )
+              )}
 
-
-
-          }
+          { status === 'finished' &&
+              <FinishScreen
+              points={points}
+              maxPossiblePoints={maxPossiblePoints}
+              />}
       </div>
       )
 
